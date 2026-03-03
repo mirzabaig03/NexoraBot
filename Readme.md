@@ -1,18 +1,19 @@
-# Nexora Bot
+Nexora Bot
 
-Multi‑Modal RAG application with:
+Multi-Modal RAG application with:
 
-- FastAPI backend (Dockerized)
-- Celery worker for ingestion
-- Redis message broker
-- Supabase Cloud (DB + Storage)
-- Next.js frontend
+FastAPI backend (Dockerized)
 
----
+Celery worker for ingestion
 
-# 🏗 Project Structure
+Redis message broker
 
-```
+Supabase Cloud (DB + Storage)
+
+Next.js frontend
+
+🏗 Project Structure
+
 NEXORABOT/
 │
 ├── Nexora_Bot_Client/     # Next.js Frontend
@@ -27,15 +28,13 @@ NEXORABOT/
     ├── Dockerfile
     ├── pyproject.toml
     ├── poetry.lock
-    ├── .env.docker
+    ├── .env.docker.example
     └── supabase/
-```
 
----
 
-# 🧱 Architecture
 
-```
+🧱 Architecture Workflow
+
 Frontend (Next.js)
         ↓
 FastAPI Backend (Docker)
@@ -45,156 +44,119 @@ Redis (Docker)
 Celery Worker (Docker)
         ↓
 Supabase Cloud
-```
 
----
 
-# ⚙️ Prerequisites
+
+⚙️ Prerequisites
 
 Install the following:
 
-- Docker Desktop (Required)
-- Node.js 18+
-- Supabase Cloud Project
-- Clerk Project (Authentication)
+Docker Desktop (Required)
 
+Node.js 18+
 
----
+Supabase Cloud Project
 
-# 🔐 Environment Setup
+Clerk Project (Authentication)
 
-## 1️⃣ Backend Environment
+🔐 Environment Setup
 
-Inside `Nexora_Bot_Server/` create:
+1️⃣ Backend Environment
 
-`.env.docker`
-`.env.docker.example` is provided
+Inside Nexora_Bot_Server/ create .env.docker.
+An .env.docker.example is provided to show you what keys are required.
 
-```
+2️⃣ Frontend Environment
 
+Inside Nexora_Bot_Client/ create .env.
+An .env.example is provided to show you what keys are required.
 
-## 2️⃣ Frontend Environment
-
-Inside `Nexora_Bot_Client/` create:
-
-`.env`
-`.env.example is provided`
-
-```
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 NEXT_PUBLIC_API_URL=http://localhost:8000
-```
 
-Do NOT expose service role key in frontend.
 
----
 
-# 🚀 Running The Application (Local Dev)
+Do NOT expose your service role key in the frontend.
 
-## Step 1 — Start Backend Stack
+🚀 Running The Application (Local Dev)
 
-```
+Step 1 — Start Backend Stack
+
 cd Nexora_Bot_Server
 docker compose up --build
-```
+
+
 
 This starts:
-- FastAPI backend (port 8000)
-- Celery worker
-- Redis broker
 
-Open:
+FastAPI backend (port 8000)
 
-```
-http://localhost:8000/docs
-```
+Celery worker
 
----
+Redis broker
 
-## Step 2 — Start Frontend
+Open: http://localhost:8000/docs
+
+Step 2 — Start Frontend
 
 In a new terminal:
 
-```
 cd Nexora_Bot_Client
 npm install
 npm run dev
-```
-
-Open:
-
-```
-http://localhost:3000
-```
-
----
 
 
-# 🐳 Docker Build Details
 
-Because the backend includes:
+Open: http://localhost:3000
 
-- torch
-- transformers
-- unstructured
-- OpenCV
+🐳 Docker Build Details
 
-First build time:
+Because the backend includes heavy dependencies (torch, transformers, unstructured, OpenCV):
 
-⏳ ~20–35 minutes (depending on internet speed)
+First build time: ~20–35 minutes (depending on internet speed)
 
-Image size:
+Image size: ~3–5 GB
 
-📦 ~3–5 GB
-
-Required free disk space:
-
-💾 Minimum 8 GB recommended
+Required free disk space: Minimum 8 GB recommended
 
 Subsequent builds are much faster due to caching.
 
----
+🛑 Stopping Services
 
-# 🛑 Stopping Services
-
-```
 docker compose down
-```
+
+
 
 To remove volumes:
 
-```
 docker compose down -v
-```
 
----
 
-# 🔁 Clean Rebuild
 
-```
+🔁 Clean Rebuild
+
 docker compose down -v
 docker compose build --no-cache
 docker compose up
-```
-
----
-
-# 📌 Notes
-
-- Backend is fully containerized
-- Supabase is cloud-hosted
-- Redis runs inside Docker
-- Frontend runs locally
-- No local Postgres required
-
----
-
-# ⚠️ Important
-
-- First build is heavy due to ML dependencies
-- Ensure Docker has at least 8 GB memory allocated
-- Do not expose service role keys publicly
-
----
 
 
+
+📌 Notes
+
+Backend is fully containerized
+
+Supabase is cloud-hosted
+
+Redis runs inside Docker
+
+Frontend runs locally
+
+No local Postgres required
+
+⚠️ Important
+
+First build is heavy due to ML dependencies
+
+Ensure Docker has at least 8 GB memory allocated
+
+Do not expose service role keys publicly
