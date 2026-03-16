@@ -1,19 +1,24 @@
 # Nexora Bot
 
-Nexora Bot is a Multi-Modal RAG (Retrieval-Augmented Generation) application built with:
+Nexora Bot is a **Multi-Modal RAG (Retrieval-Augmented Generation)** system that enables document ingestion, embedding generation, and semantic retrieval using modern AI tooling.
 
-* **FastAPI** (Backend API)
-* **Celery** (Asynchronous ingestion worker)
-* **Redis** (Message broker)
-* **Supabase Cloud** (Database + Storage)
-* **Next.js** (Frontend)
-* **Clerk** (Authentication)
+The platform combines a scalable backend with asynchronous processing and a modern frontend.
 
-This repository contains both the frontend and the fully containerized backend.
+## Core Technologies
+
+* **FastAPI** - Backend API
+* **Celery** - Asynchronous task processing
+* **Redis** - Message broker for Celery
+* **Supabase** - Cloud PostgreSQL + storage
+* **Next.js** - Frontend application
+* **Clerk** - Authentication provider
+* **Docker** - Backend containerization
+
+The repository contains both the **frontend** and **backend infrastructure** required to run the system locally.
 
 ---
 
-# 🏗 Project Structure
+# Project Structure
 
 ```
 NEXORABOT/
@@ -32,42 +37,56 @@ NEXORABOT/
     ├── poetry.lock
     ├── .env.docker.example
     └── supabase/
+        └── migrations/
 ```
 
 ---
 
-# 🧱 Architecture Overview
+# Architecture
 
 ```
-Frontend (Next.js)
-        ↓
+Next.js Frontend
+        │
+        ▼
 FastAPI Backend (Docker)
-        ↓
-Redis (Docker)
-        ↓
-Celery Worker (Docker)
-        ↓
-Supabase Cloud
+        │
+        ▼
+Redis Queue
+        │
+        ▼
+Celery Worker
+        │
+        ▼
+Supabase (PostgreSQL + Storage)
 ```
 
----
+Key system responsibilities:
 
-# ⚙️ Prerequisites
-
-Make sure the following are installed:
-
-* **Docker Desktop** (required)
-* **Node.js 18+**
-* A **Supabase Cloud project**
-* A **Clerk project** for authentication
-
-No local PostgreSQL or Supabase installation is required.
+| Component     | Responsibility            |
+| ------------- | ------------------------- |
+| Frontend      | User interface            |
+| FastAPI       | API layer                 |
+| Redis         | Task queue broker         |
+| Celery Worker | Background ingestion jobs |
+| Supabase      | Database + storage        |
 
 ---
 
-# 🔐 Environment Configuration
+# Prerequisites
 
-## 1️⃣ Backend Configuration
+Ensure the following tools are installed before running the project:
+
+* Docker Desktop
+* Node.js 18+
+* A Supabase Cloud project
+* A Clerk authentication project
+
+
+---
+
+# Environment Configuration
+
+## Backend
 
 Navigate to:
 
@@ -75,7 +94,7 @@ Navigate to:
 Nexora_Bot_Server/
 ```
 
-Create a file named:
+Create:
 
 ```
 .env.docker
@@ -83,9 +102,33 @@ Create a file named:
 
 Use `.env.docker.example` as reference.
 
+Important variables:
+
+```
+SUPABASE_API_URL=
+SUPABASE_SECRET_KEY=
+DATABASE_URL=
+CLERK_SECRET_KEY=
+DOMAIN=
+REDIS_URL=redis://redis:6379
+```
+
+Notes:
+
+* `SUPABASE_SECRET_KEY` must be the **service role key**.
+* `DATABASE_URL` should use the **Supabase Session Pooler endpoint**.
+
+Example:
+
+```
+postgresql://postgres:PASSWORD@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+```
+
+Remove any extra query parameters such as `pgbouncer=true`.
+
 ---
 
-## 2️⃣ Frontend Configuration
+## Frontend
 
 Navigate to:
 
@@ -93,7 +136,7 @@ Navigate to:
 Nexora_Bot_Client/
 ```
 
-Create a file named:
+Create:
 
 ```
 .env
@@ -101,27 +144,61 @@ Create a file named:
 
 Use `.env.example` as reference.
 
-``
+Example variables:
+
+```
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
 ---
 
-# 🚀 Running the Project
+# Database Migrations
 
-## Step 1 — Start the Backend
+The backend automatically runs SQL migrations during startup.
 
-Open a terminal and run:
+Migration files are located in:
+
+```
+supabase/migrations/
+```
+
+These migrations create:
+
+* database tables
+* indexes
+* search functions
+* permissions
+
+A migration runner executes these files in order.
+
+To reset the database during development:
+
+```sql
+drop schema public cascade;
+create schema public;
+```
+
+After resetting, restart the backend containers and migrations will run again.
+
+---
+
+# Running the Project
+
+## Start Backend
 
 ```bash
 cd Nexora_Bot_Server
 docker compose up --build
 ```
 
-This will start:
+This launches:
 
-* FastAPI backend on **[http://localhost:8000](http://localhost:8000)**
+* FastAPI backend
 * Celery worker
-* Redis message broker
+* Redis broker
 
-To verify backend is running, open:
+Verify the backend:
 
 ```
 http://localhost:8000/docs
@@ -129,9 +206,9 @@ http://localhost:8000/docs
 
 ---
 
-## Step 2 — Start the Frontend
+## Start Frontend
 
-Open a new terminal and run:
+In a separate terminal:
 
 ```bash
 cd Nexora_Bot_Client
@@ -145,34 +222,68 @@ Frontend will be available at:
 http://localhost:3000
 ```
 
-# 🛑 Stopping the Backend
+---
 
-From inside `Nexora_Bot_Server/`:
+# Stopping the Backend
 
 ```bash
+cd Nexora_Bot_Server
 docker compose down
 ```
 
 ---
 
-# 📌 Important Notes
+# Running Backend Using Prebuilt Docker Image
 
-* Backend is fully containerized using Docker.
-* Supabase is cloud-hosted.
+Prebuilt image is available on Docker Hub, the backend can be started without building locally.
+
+```
+docker pull safibaig03/nexora-api:latest
+```
+
+Then run:
+
+```
+docker compose up
+```
+
+---
+
+# Important Notes
+
+* Backend is fully containerized.
 * Redis runs inside Docker.
-* Frontend runs locally using Node.js.
-* First Docker build may take significant time due to ML dependencies.
-* Ensure Docker has sufficient memory allocated (8GB recommended).
+* Supabase is cloud hosted.
+* Celery processes ingestion tasks asynchronously.
+* First build may take several minutes due to ML dependencies.
+* Docker should have **at least 8GB RAM allocated**.
 
 ---
 
-# 🔐 Security
 
-* Backend uses Supabase **Service Role Key** for system-level operations.
-* Frontend must only use public keys.
-* Never commit `.env` or `.env.docker` files.
-* Rotate keys immediately if exposed.
+# Development Notes
+
+During development you may need to reset the database or rerun migrations.
+
+Common workflow:
+
+```
+reset supabase schema
+↓
+docker compose up
+↓
+migrations run automatically
+```
 
 ---
 
-This setup allows full local development and testing of the complete Nexora Bot system.
+# Summary
+
+Nexora Bot provides a full **AI-powered RAG platform** with:
+
+* scalable API
+* asynchronous ingestion
+* modern frontend
+* cloud database
+
+The Dockerized backend and migration system allow the entire stack to be reproduced easily on any machine.
