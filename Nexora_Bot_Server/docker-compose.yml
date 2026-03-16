@@ -1,15 +1,23 @@
+
+
+
 # version: "3.9"
+
 # services:
+
 #   backend:
-#     image: nexora:latest
 #     build:
 #       context: .
 #       dockerfile: Dockerfile
+#     image: nexora:latest
 #     container_name: nexora_backend
-#     command: >
-#       uvicorn src.server:app
-#       --host 0.0.0.0
-#       --port 8000
+#     command:
+#       - uvicorn
+#       - src.server:app
+#       - --host
+#       - 0.0.0.0
+#       - --port
+#       - "8000"
 #     ports:
 #       - "8000:8000"
 #     env_file:
@@ -22,10 +30,12 @@
 #   worker:
 #     image: nexora:latest
 #     container_name: nexora_worker
-#     command: >
-#       celery -A src.services.celery:celery_app
-#       worker
-#       --loglevel=info
+#     command:
+#       - celery
+#       - -A
+#       - src.services.celery:celery_app
+#       - worker
+#       - --loglevel=info
 #     env_file:
 #       - .env.docker
 #     depends_on:
@@ -36,8 +46,6 @@
 #   redis:
 #     image: redis:7-alpine
 #     container_name: nexora_redis
-#     ports:
-#       - "6379:6379"
 #     volumes:
 #       - redis_data:/data
 #     healthcheck:
@@ -56,10 +64,7 @@ version: "3.9"
 services:
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: nexora:latest
+    image: safibaig03/nexora-api:latest
     container_name: nexora_backend
     command:
       - uvicorn
@@ -78,7 +83,7 @@ services:
     restart: unless-stopped
 
   worker:
-    image: nexora:latest
+    image: safibaig03/nexora-api:latest
     container_name: nexora_worker
     command:
       - celery
@@ -98,6 +103,8 @@ services:
     container_name: nexora_redis
     volumes:
       - redis_data:/data
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

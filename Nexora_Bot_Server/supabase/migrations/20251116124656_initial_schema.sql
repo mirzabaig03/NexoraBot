@@ -6,14 +6,14 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "vector";
 
 -- Users table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     clerk_id TEXT NOT NULL UNIQUE,
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- Projects table
-CREATE TABLE projects (
+CREATE TABLE IF NOT EXISTS projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     description TEXT,
@@ -22,7 +22,7 @@ CREATE TABLE projects (
 );
 
 -- Project settings table
-CREATE TABLE project_settings (
+CREATE TABLE IF NOT EXISTS project_settings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id UUID NOT NULL UNIQUE REFERENCES projects(id) ON DELETE CASCADE,
     embedding_model TEXT NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE project_settings (
 );
 
 -- Project documents table
-CREATE TABLE project_documents (
+CREATE TABLE IF NOT EXISTS project_documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     filename TEXT NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE project_documents (
 );
 
 -- Document chunks table
-CREATE TABLE document_chunks (
+CREATE TABLE IF NOT EXISTS document_chunks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     document_id UUID NOT NULL REFERENCES project_documents(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE document_chunks (
 );
 
 -- Chats table
-CREATE TABLE chats (
+CREATE TABLE IF NOT EXISTS chats (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -81,7 +81,7 @@ CREATE TABLE chats (
 );
 
 -- Messages table
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     content TEXT NOT NULL,
     role TEXT DEFAULT 'user',
@@ -93,5 +93,5 @@ CREATE TABLE messages (
 );
 
 -- Create indexes for search performance
-CREATE INDEX document_chunks_fts_idx ON document_chunks USING gin (fts);
-CREATE INDEX document_chunks_embedding_hnsw_idx ON document_chunks USING hnsw (embedding vector_cosine_ops);
+CREATE INDEX IF NOT EXISTS document_chunks_fts_idx ON document_chunks USING gin (fts);
+CREATE INDEX IF NOT EXISTS document_chunks_embedding_hnsw_idx ON document_chunks USING hnsw (embedding vector_cosine_ops);

@@ -34,15 +34,13 @@
 
 # CMD ["uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "8000"]
 
-
-
-
 FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     POETRY_VIRTUALENVS_CREATE=false \
     POETRY_NO_INTERACTION=1 \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
@@ -64,14 +62,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install Poetry
 RUN pip install --no-cache-dir poetry==2.3.2
 
-# Copy only dependency files first (important for caching)
+# Copy dependency files first for caching
 COPY pyproject.toml poetry.lock ./
 
-# Install dependencies
-RUN poetry install --only main --no-root
+# Install Python dependencies without cache
+RUN poetry config cache-dir /tmp/poetry-cache \
+    && poetry install --only main --no-root --no-interaction \
+    && rm -rf /tmp/poetry-cache
 
-# Copy application source
+# Copy application code
 COPY src ./src
+COPY supabase ./supabase
 
 EXPOSE 8000
 

@@ -5,10 +5,11 @@ from src.routes.projectRoutes import router as projectRoutes
 from src.routes.projectFilesRoutes import router as projectFilesRoutes
 from src.routes.chatRoutes import router as chatRoutes
 
+from src.utils.migration_runner import run_migrations
 
+run_migrations()
 import os
-
-print("DATABASE_URL:", os.getenv("DATABASE_URL"))
+# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
 
 
 
