@@ -3,6 +3,7 @@ import psycopg2
 from pathlib import Path
 
 
+
 def run_migrations():
     print("Running database migrations...")
 
